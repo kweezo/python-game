@@ -78,3 +78,6 @@ class BasicEnemy(Enemy):
 class TurtleEnemy(Enemy):
     def __init__(self, screen, pos):
         super().__init__(screen, pos, Vector2(90, 90), 100, 50, 200, pygame.image.load("res/turtle.png").convert_alpha(), 30, 50)
+class ChildEnemy(Enemy):
+    def __init__(self, screen, pos):
+        super().__init__(screen, pos, Vector2(70, 70), 80, 30, 50, pygame.image.load("res/child.png").convert_alpha(), 30, 50)

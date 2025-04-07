@@ -10,6 +10,7 @@ from physics.rect_collider import *
 from camera import * 
 from weapons.weapon import *
 from weapons.grenade import * 
+from dog import *
 
 class Player(RectCollider):
     def __init__(self, screen, font) -> None:
@@ -21,11 +22,15 @@ class Player(RectCollider):
         self._last_dash = 0
         self._dash_force = 150
         self._weapon = Weapon(screen, 10, pygame.image.load("res/glock.png").convert_alpha(), Vector2(50, 10), 20, pygame.mixer.Sound("res/sfx/shoot_glock.mp3"), False, (255, 255, 255), 500)
+        self._since_last_hit = 0
+        self._dog = None
         #
         self._grenade = Grenade(screen)
-        self._hp = 100
-        self._currency = 0
+        self._max_hp = 100
+        self._hp = self._max_hp
+        self._currency = 999
         self._font = font
+
 
     def __render_font(self):
         currency_surface = self._font.render("cekinarji: " + str(self._currency), False, (255, 255, 0))
@@ -45,6 +50,10 @@ class Player(RectCollider):
         self._grenade.draw()
 
         self.__render_font()
+
+
+        if self._dog is not None:
+            self._dog.draw()
 
     def __handle_movement(self, dt):
         if self._vel.size > self._max_speed:
@@ -77,21 +86,41 @@ class Player(RectCollider):
         self.__handle_movement(dt)
 
         self._physics_update(dt)
+        
+        if self._dog is not None:
+            self._dog.update(enemies, dt)
 
     def deal_dmg(self, dmg, dmg_dir):
+        if pygame.time.get_ticks() - self._since_last_hit < 1000:
+            return
+
+        self._since_last_hit = pygame.time.get_ticks()
+
         self._hp -= dmg
         self._hit_time = pygame.time.get_ticks()
 
         self.apply_force(-self._vel)
         self.apply_force(dmg_dir * 150)
+
+    def reset_hp(self):
+        self._hp = self._max_hp
     
-    def add_currency(self, amount):
+    def add_currency(self, amount):        
         self._currency += amount
+
+        if self._currency < 0:
+            self._currency -= amount
+            return False
+
+        return True
 
     def set_weapon(self, weapon):
         self._weapon = weapon
 
+    def enable_dog(self):
+       self._dog = Dog(self._screen, self) 
+
 
     @property 
-    def get__pos(self):
+    def get_pos(self):
         return copy(self._pos)
