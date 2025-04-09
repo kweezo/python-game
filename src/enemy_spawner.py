@@ -17,9 +17,9 @@ class EnemySpawner:
         return int(10 - min(abs(self._curr_round - mean_round) / deviation, 10)) # distribution curve halal inshallah approves
 
     def __get_enemy_count(self):
-        base_enemy_count = 2
-        round_multiplier = 2
-        round_enemy_multiplier = 1.2
+        base_enemy_count = 3
+        round_multiplier = 3
+        round_enemy_multiplier = 1.4
         enemy_cap = 50
 
         return min(ceil((self._curr_round * round_multiplier + base_enemy_count) * round_enemy_multiplier), enemy_cap)
@@ -39,9 +39,9 @@ class EnemySpawner:
         exclusion_min = -self._stage_size / 2
         exclusion_max = self._stage_size / 2
 
-        base_enemy_spawn_chance = self.__get_enemy_spawn_chance(2, 3)
-        turtle_enemy_spawn_chance = self.__get_enemy_spawn_chance(2, 6)
-        child_enemy_spawn_chance = self.__get_enemy_spawn_chance(3, 1)
+        base_enemy_spawn_chance = self.__get_enemy_spawn_chance(6, 3)
+        turtle_enemy_spawn_chance = self.__get_enemy_spawn_chance(1, 6)
+        child_enemy_spawn_chance = self.__get_enemy_spawn_chance(5, 1)
 
         weights = [base_enemy_spawn_chance, turtle_enemy_spawn_chance, child_enemy_spawn_chance]
 

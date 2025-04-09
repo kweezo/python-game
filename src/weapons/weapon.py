@@ -131,10 +131,9 @@ class Weapon:
         self.__handle_shooting()
 
         if pygame.time.get_ticks() - self._fire_time < 100:
-            time_multiplier = (1 - (pygame.time.get_ticks() - self._fire_time) / 100)
+            time_multiplier = min((1 - (pygame.time.get_ticks() - self._fire_time) / 100) + 0.05, 1)
 
-            #Camera.set_color((1 * time_multiplier, 1 * time_multiplier, 1 * time_multiplier)) 
-            Camera.set_color((1, 1, 1))
+            Camera.set_color((1 * time_multiplier, 1 * time_multiplier, 1 * time_multiplier)) 
             Camera.offset_pos(Vector2(randrange(-5, 5), randrange(-5, 5)))
 
 

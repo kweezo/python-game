@@ -32,7 +32,7 @@ class Player(RectCollider):
         self._font = font
 
 
-    def __render_font(self):
+    def draw_on_top(self):
         currency_surface = self._font.render("cekinarji: " + str(self._currency), False, (255, 255, 0))
         health_surface = self._font.render("zdravje: " + str(self._hp), False, (255, 255, 0))
 
@@ -48,8 +48,6 @@ class Player(RectCollider):
 
         self._weapon.draw(self._pos + self._size / 2)
         self._grenade.draw()
-
-        self.__render_font()
 
 
         if self._dog is not None:

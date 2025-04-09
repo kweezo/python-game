@@ -28,22 +28,16 @@ dt = 0
 player = Player(screen, font)
 
 stage = Stage(screen)
-buy_pad = WeaponBuyPad(screen, Vector2(500, 500), 69, Weapon(screen, 10, pygame.image.load("res/ak.png").convert_alpha(), Vector2(60, 50), 20, pygame.mixer.Sound("res/sfx/shoot_ak.mp3"), True, (255, 0, 0), 100), player)
-dog_pad = DogBuyPad(screen, Vector2(500, 350), 10, player)
+ak_pad = WeaponBuyPad(screen, Vector2(500, 500), 69, Weapon(screen, 10, pygame.image.load("res/ak.png").convert_alpha(), Vector2(60, 50), 20, pygame.mixer.Sound("res/sfx/shoot_ak.mp3"), True, (255, 0, 0), 100), player, font)
+sniper_pad = WeaponBuyPad(screen, Vector2(350, 500), 100, Weapon(screen, 100, pygame.image.load("res/sniper.png").convert_alpha(), Vector2(100, 50), 20, pygame.mixer.Sound("res/sfx/sniper.wav"), False, (255, 255, 0), 2000), player, font)
+dog_pad = DogBuyPad(screen, Vector2(500, 350), 10, player, font)
+cure_pad = CureBuyPad(screen, Vector2(350, 350), 1000, player, font)
 
 enemy_spawner = EnemySpawner(screen, stage, font_big)
+enemies = enemy_spawner.update()
 
 Camera.set_limits(Vector2(-200, -200), Vector2(200, 200))
 
-enemies = enemy_spawner.update()
-
-def add_enemy(pos):
-    enemies.append(
-        Enemy(screen, pos, Vector2(70, 70), 260, 60, 100, pygame.image.load("res/basic_zombie.png").convert_alpha(), 10, 15)
-    )
-
-for i in range(0):
-    add_enemy(Vector2(randrange(-500, 500), randrange(-500, 500)))
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -71,8 +65,10 @@ while running:
             enemies[i].handle_collision(enemies[y])
 
 
-    buy_pad.update(player)
+    ak_pad.update(player)
     dog_pad.update(player)
+    sniper_pad.update(player)
+    cure_pad.update(player)
 
     if len(enemies) == 0:
         enemy_spawner.to_next_round()
@@ -80,17 +76,17 @@ while running:
         player.reset_hp()
 
 
-    # fill the screen with a color to wipe away anything from last frame
     screen.fill((255 * Camera.get_color_float()[0], 0 * Camera.get_color_float()[1], 255 * Camera.get_color_float()[2]))
 
-    # RENDER YOUR GAME HERE
 
     Camera.update(player.get_pos + player.get_size / 2, dt)
 
 
     stage.draw()
 
-    buy_pad.draw()
+    ak_pad.draw()
+    sniper_pad.draw()
+    cure_pad.draw()
     dog_pad.draw()
 
     player.draw()
@@ -99,12 +95,18 @@ while running:
         enemy.draw(player.get_pos + player.get_size / 2)
     
     stage.draw_on_top()
+    player.draw_on_top()
+    ak_pad.draw_on_top()
+    sniper_pad.draw_on_top()
+    cure_pad.draw_on_top()
+    dog_pad.draw_on_top()
+
+
     enemy_spawner.draw()
 
-    # flip() the display to put your work on screen
     pygame.display.flip()   
 
 
-    dt = clock.tick(60) / 100  # limits FPS to 60
+    dt = clock.tick(60) / 100  # it just do be like that
 
 pygame.quit()

@@ -51,8 +51,10 @@ class Stage:
                 self._screen.blit(image, (Vector2(x, y) + Camera.get_pos()).tuple)
         
     def __draw_bushes(self):
+        image = copy(self._bush_image)
+        image.fill(Camera.get_color_rgb(), special_flags=pygame.BLEND_RGB_MULT)
         for bush in self._bushes:
-            self._screen.blit(self._bush_image, (bush.get_pos + Camera.get_pos() - bush.get_size / 2).tuple)
+            self._screen.blit(image, (bush.get_pos + Camera.get_pos() - bush.get_size / 2).tuple)
         
     def check_border_collision(self, other):
         for border in self._border_colliders:
