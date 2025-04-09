@@ -52,6 +52,7 @@ while running:
         enemy.update(dt, player.get_pos)
         if enemy.handle_collision(player):
             player.deal_dmg(enemy.get_dmg(), ~(player.get_pos - enemy.get_pos))
+            stage.check_border_collision(player)
 
 
 

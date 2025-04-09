@@ -21,6 +21,7 @@ class Weapon:
         self._is_automatic = is_automatic
         self._fire_rate = fire_rate
         self._laser_color = laser_color
+        self._hit_sound = pygame.mixer.Sound("res/sfx/hit.wav")
         
         self._object_in_path = False
         self._enemy_in_path_pos = Vector2(0, 0)
@@ -69,6 +70,7 @@ class Weapon:
             return
 
         self._enemy.deal_dmg(self._damage, self._dir_vec)
+        self._hit_sound.play()
 
     def __manual_fire(self):
 
@@ -131,7 +133,7 @@ class Weapon:
         self.__handle_shooting()
 
         if pygame.time.get_ticks() - self._fire_time < 100:
-            time_multiplier = min((1 - (pygame.time.get_ticks() - self._fire_time) / 100) + 0.05, 1)
+            time_multiplier = min((1 - (pygame.time.get_ticks() - self._fire_time) / 100) + 0.3, 1)
 
             Camera.set_color((1 * time_multiplier, 1 * time_multiplier, 1 * time_multiplier)) 
             Camera.offset_pos(Vector2(randrange(-5, 5), randrange(-5, 5)))
