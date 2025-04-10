@@ -57,7 +57,7 @@ while running:
             stage.check_border_collision(player)
 
 
-    ranged_enemy.update(dt, player.get_pos)
+    ranged_enemy.update(player, stage.get_environment_colliders, dt)
 
 
     for i in range(len(enemies)):
@@ -75,10 +75,10 @@ while running:
     sniper_pad.update(player)
     cure_pad.update(player)
 
-    if len(enemies) == 0:
-        enemy_spawner.to_next_round()
-        enemies = enemy_spawner.update()
-        player.reset_hp()
+   # if len(enemies) == 0:
+    #    enemy_spawner.to_next_round()
+     #   enemies = enemy_spawner.update()
+      #  player.reset_hp()
 
 
     screen.fill((255 * Camera.get_color_float()[0], 0 * Camera.get_color_float()[1], 255 * Camera.get_color_float()[2]))
@@ -93,6 +93,8 @@ while running:
     sniper_pad.draw()
     cure_pad.draw()
     dog_pad.draw()
+
+    ranged_enemy.draw_laser()
 
     player.draw()
 
