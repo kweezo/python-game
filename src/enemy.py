@@ -36,21 +36,21 @@ class Enemy(RectCollider):
 
         self._screen.blit(image, (self._pos + Camera.get_pos()).tuple)
 
-    def __handle_movement(self, dt, player_pos):
+    def _handle_movement(self, dt, player_pos):
 
         dir_vec = ~(self._pos - player_pos)
 
         self._vel = dir_vec * dt * -self._speed
 
-    def __turn_towards_player(self, player_pos):
+    def _turn_towards_player(self, player_pos):
         c = (self._pos - player_pos).size
         b = abs(self._pos.y - player_pos.y)
 
         self._orientation = cos(b/c)
 
     def update(self, dt, player_pos):
-        self.__turn_towards_player(player_pos) # oriented bounding boxes sigma sigma??
-        self.__handle_movement(dt, player_pos)
+        self._turn_towards_player(player_pos) # oriented bounding boxes sigma sigma??
+        self._handle_movement(dt, player_pos)
 
         self._physics_update(dt)
 
@@ -70,6 +70,32 @@ class Enemy(RectCollider):
 
     def get_dmg(self):
         return self._dmg
+
+class RangedEnemy(Enemy):
+    def __init__(self, screen, pos):
+        super().__init__(screen, pos, Vector2(80, 80), 260, 60, 100, pygame.image.load("res/ranged_enemy.png").convert_alpha(), 10, 1)
+
+
+    def draw(self, player_pos):
+        image = copy(self._image)
+        if pygame.time.get_ticks() - self._hit_time < 100:
+            image.fill((255, 0, 0), special_flags=pygame.BLEND_RGB_ADD)
+        image.fill(Camera.get_color_rgb(), special_flags=pygame.BLEND_RGB_MULT)
+
+        angle = atan2(self._pos.x - player_pos.x, self._pos.y - player_pos.y) + 1.57
+
+        image = pygame.transform.rotate(image, angle * 180 / 3.14159) 
+
+        self._screen.blit(image, (self._pos + Camera.get_pos()).tuple)
+
+    def update(self, dt, player_pos):
+        self._turn_towards_player(player_pos) # oriented bounding boxes sigma sigma??
+
+        if (self._pos - player_pos).size_pow > 300000:
+            self._handle_movement(dt, player_pos)
+        else:
+        self._physics_update(dt)
+
     
 
 class BasicEnemy(Enemy):

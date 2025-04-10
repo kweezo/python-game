@@ -36,6 +36,8 @@ cure_pad = CureBuyPad(screen, Vector2(350, 350), 1000, player, font)
 enemy_spawner = EnemySpawner(screen, stage, font_big)
 enemies = enemy_spawner.update()
 
+ranged_enemy = RangedEnemy(screen, Vector2(500, 500))
+
 Camera.set_limits(Vector2(-200, -200), Vector2(200, 200))
 
 while running:
@@ -54,6 +56,8 @@ while running:
             player.deal_dmg(enemy.get_dmg(), ~(player.get_pos - enemy.get_pos))
             stage.check_border_collision(player)
 
+
+    ranged_enemy.update(dt, player.get_pos)
 
 
     for i in range(len(enemies)):
@@ -94,6 +98,8 @@ while running:
 
     for enemy in enemies:
         enemy.draw(player.get_pos + player.get_size / 2)
+
+    ranged_enemy.draw(player.get_pos)
     
     stage.draw_on_top()
     player.draw_on_top()
