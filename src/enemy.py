@@ -44,15 +44,14 @@ class Enemy(RectCollider):
 
         self._vel = dir_vec * dt * -self._speed
 
-    def _turn_towards_player(self, player_pos):
-        c = (self._pos - player_pos).size
-        b = abs(self._pos.y - player_pos.y)
+    def _turn_towards_player(self, player):
+        vec = (player.get_pos - self._pos - player.get_size / 2 + self._size / 2)
 
-        self._orientation = cos(b/c)
+        self._orientation = atan2(vec.y, -vec.x)
 
-    def update(self, dt, player_pos):
-        self._turn_towards_player(player_pos) # oriented bounding boxes sigma sigma??
-        self._handle_movement(dt, player_pos)
+    def update(self, dt, player):
+        self._turn_towards_player(player.get_pos) # oriented bounding boxes sigma sigma??
+        self._handle_movement(dt, player.get_pos)
 
         self._physics_update(dt)
 
@@ -80,20 +79,22 @@ class RangedEnemy(Enemy):
         self._laser_pos = Vector2(0, 0)
         self._hit_player = False
         self._since_last_shot = 0
-        self._laser_offset = Vector2(20, 5)
+        self._laser_offset = 60
+        self._laser_rad_offset = 0.16600828085483
 
     def _obstacle_in_path(self, player, colliders):
-        player_dist = (self._pos - player.get_pos).size_pow
-        laser_dir = ~(self._pos - player.get_pos) * 10
+        player_dist = (self._pos - player.get_pos + player.get_size / 2).size_pow
+        laser_dir = ~(self._pos - player.get_pos - player.get_size / 2) * 10
         self._laser_pos = copy(self._pos)
 
         hit = False
         hit_player_in_frame = False #ugly as hell but it's 11 pm and I can't be arsed
         
-        for i in range(100):
+        for i in range(200):
             for col in colliders:
                 if (col.get_pos - self._pos).size_pow > player_dist:
-                    continue 
+              #      continue 
+                  pass
 
                 if col.colliding_with_point(self._laser_pos):
                     hit = True
@@ -104,7 +105,7 @@ class RangedEnemy(Enemy):
                 break
             self._laser_pos -= laser_dir
             
-            if player.colliding_with_point(self._laser_pos + player.get_size / 2):
+            if player.colliding_with_point(self._laser_pos):
                 if not self._hit_player:
                     self._since_last_shot = pygame.time.get_ticks()
                 self._laser_pos -= laser_dir * 1.3
@@ -116,6 +117,7 @@ class RangedEnemy(Enemy):
 
 
     def _dmg_player(self, player):
+        print(self._hit_player, self._since_last_shot )
         if not self._hit_player or pygame.time.get_ticks() - self._since_last_shot < 3000:
             return
 
@@ -127,7 +129,8 @@ class RangedEnemy(Enemy):
             
 
     def update(self, player, colliders, dt):
-        self._turn_towards_player(player.get_pos) # oriented bounding boxes sigma sigma??
+        self._turn_towards_player(player) # oriented bounding boxes sigma sigma??
+        self._orientation += 3.14
 
         self._obstacle_in_path(player, colliders)
         if (self._pos - player.get_pos).size_pow > 300000:
@@ -138,25 +141,25 @@ class RangedEnemy(Enemy):
 
         self._physics_update(dt)
 
-    def draw_laser(self):
-        start_pos = self.get_pos + Camera.get_pos() + self._laser_offset * Vector2(cos(self._orientation), sin(self._orientation))
-        final_pos = self._laser_pos + Camera.get_pos()
-
-
-        pygame.draw.line(self._screen, (0, 255, 255), start_pos.tuple, final_pos.tuple, 2)
-
-
     def draw(self, player_pos):
         image = copy(self._image)
         if pygame.time.get_ticks() - self._hit_time < 100:
             image.fill((255, 0, 0), special_flags=pygame.BLEND_RGB_ADD)
+
         image.fill(Camera.get_color_rgb(), special_flags=pygame.BLEND_RGB_MULT)
 
-        angle = atan2(self._pos.x - player_pos.x, self._pos.y - player_pos.y) + 1.57
+        image = pygame.transform.flip(image, False, True)
 
-        image = pygame.transform.rotate(image, angle * 180 / 3.14159) 
+        image = pygame.transform.rotate(image, (self._orientation) * 180 / 3.14159) 
 
         self._screen.blit(image, (self._pos + Camera.get_pos() - Vector2(image.get_width(), image.get_height()) / 2).tuple)
+
+    def draw_laser(self):
+        print(cos(self._orientation), sin(self._orientation))
+        start_pos = self.get_pos + Camera.get_pos() + Vector2(cos(self._orientation + self._laser_rad_offset), -sin(self._orientation + self._laser_rad_offset)) * self._laser_offset
+        final_pos = self._laser_pos + Camera.get_pos()
+
+        pygame.draw.line(self._screen, (0, 255, 255), start_pos.tuple, final_pos.tuple, 2)
 
 
     
